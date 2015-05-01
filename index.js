@@ -10,11 +10,8 @@ http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json')
     let parsedUrl = url.parse(req.url)
 
-    console.log(parsedUrl.pathname)
-
     ls(parsedUrl.pathname)
         .then(files =>  {
-            console.log(files.length)
             res.end(JSON.stringify(files))
         })
         .catch(e => console.log(e.stack))
