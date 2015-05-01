@@ -5,30 +5,29 @@ let url = require('url')
 let _ = require('lodash')
 require('songbird')
 
-
 http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json')
-    let parsedUrl = url.parse(req.url)
 
-    ls(parsedUrl.pathname)
-        .then(files =>  {
-            res.end(JSON.stringify(files))
-        })
-        .catch(e => console.log(e.stack))
+    ls(url.parse(req.url).pathname)
+    .then(files => res.end(JSON.stringify(files)))
+    .catch(e => console.log(e.stack))
 
-}).listen(8080)
-
+}).listen(8080, () => console.log('Server listening at http://127.0.0.1:8080'));
 
 async function ls(dir){
     let promises = []
-    let stat = await fs.promise.stat(dir)
-    if(stat.isDirectory()) {
+
+    if(await isDirectory(dir)) {
         for (let file of await fs.promise.readdir(dir)) {
-            promises.push(await ls(path.join(dir, file)))
+            promises.push(ls(path.join(dir, file)))
         }
         let results = await Promise.all(promises)
         return _.flatten(results)
     } else {
-        return new Array(dir)
+        return [dir]
     }
+}
+
+async function isDirectory(dir) {
+    return (await fs.promise.stat(dir)).isDirectory()
 }
