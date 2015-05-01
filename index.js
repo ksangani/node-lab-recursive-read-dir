@@ -21,7 +21,7 @@ async function ls(dir){
         for (let file of await fs.promise.readdir(dir)) {
             promises.push(ls(path.join(dir, file)))
         }
-        let results = await Promise.all(promises)
+        let results = await* promises
         return _.flatten(results)
     } else {
         return [dir]
